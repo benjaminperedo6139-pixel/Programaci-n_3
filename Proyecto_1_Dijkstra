@@ -1,0 +1,118 @@
+
+"""
+Título: Algoritmo de Dijkstra
+
+Nombre completo: Benjamín Peredo Alonso
+
+Fecha de creación: 13/10/2026
+
+Descripción: Proyecto 1, algoritmo de Dijkstra
+"""
+
+# Esta clase representa un nodo del grafo.
+class Nodo:
+    def __init__(self, nombre):
+        # Guardamos el nombre del nodo.
+        self.nombre = nombre
+
+        # Diccionario para guardar los nodos conectados y sus pesos.
+        self.conexiones = {}
+
+    def conectar(self, otro_nodo, peso):
+        """Conecta este nodo con otro y guarda el costo."""
+        self.conexiones[otro_nodo] = peso
+
+
+# Esta clase administra los nodos y calcula las rutas.
+class Grafo:
+    def __init__(self):
+        """Crea un diccionario vacío para almacenar los nodos."""
+        self.nodos = {}
+
+    def agregar_nodo(self, nombre):
+        """Agrega un nodo si todavía no existe."""
+        if nombre not in self.nodos:
+            self.nodos[nombre] = Nodo(nombre)
+
+    def conectar_nodos(self, origen, destino, peso):
+        """Conecta dos nodos en ambas direcciones."""
+        self.nodos[origen].conectar(self.nodos[destino], peso)
+        self.nodos[destino].conectar(self.nodos[origen], peso)
+
+    def dijkstra(self, origen, destino):
+        """
+        Calcula la distancia mínima entre el origen y el destino.
+        También reconstruye la ruta con ayuda de un diccionario.
+        """
+        # Al principio, todas las distancias son infinitas.
+        distancias = {
+            nodo: float("inf") for nodo in self.nodos
+        }
+
+        # Guarda el nodo anterior para reconstruir el recorrido.
+        anteriores = {nodo: None for nodo in self.nodos}
+
+        # Lista de nodos que todavía falta revisar.
+        pendientes = list(self.nodos.keys())
+
+        # Llegar al origen tiene un costo de cero.
+        distancias[origen] = 0
+
+        while pendientes:
+            # Elegimos el nodo pendiente con menor distancia.
+            actual = min(pendientes, key=lambda n: distancias[n])
+            pendientes.remove(actual)
+
+            # Si todos los nodos restantes son inaccesibles, terminamos.
+            if distancias[actual] == float("inf"):
+                break
+
+            # Si llegamos al destino, ya podemos terminar.
+            if actual == destino:
+                break
+
+            # Revisamos las conexiones del nodo actual.
+            for vecino, peso in self.nodos[actual].conexiones.items():
+                nueva_distancia = distancias[actual] + peso
+
+                # Error intencional 1: revisa la condición.
+                if nueva_distancia > distancias[vecino.nombre]:
+                    distancias[vecino.nombre] = nueva_distancia
+                    anteriores[vecino.nombre] = actual
+
+        # Reconstruimos la ruta desde el destino hacia el origen.
+        ruta = []
+        actual = destino
+
+        if distancias[destino] != float("inf"):
+            while actual is not None:
+                ruta.insert(0, actual)
+                actual = anteriores[actual]
+
+            # Mostramos el resultado final.
+            # Error intencional 2: revisa el nombre de la variable.
+            print("Costo total:", distancia[destino])
+            print("Ruta:", " -> ".join(ruta))
+        else:
+            print("No existe una ruta entre los nodos.")
+
+
+# Programa principal: creamos el grafo de ejemplo.
+grafo = Grafo()
+
+# Agregamos los cinco nodos.
+for nombre in ["A", "B", "C", "D", "E"]:
+    grafo.agregar_nodo(nombre)
+
+# Definimos las conexiones y sus costos.
+grafo.conectar_nodos("A", "B", 4)
+grafo.conectar_nodos("A", "C", 2)
+grafo.conectar_nodos("B", "C", 1)
+grafo.conectar_nodos("B", "D", 5)
+grafo.conectar_nodos("C", "D", 8)
+grafo.conectar_nodos("C", "E", 10)
+grafo.conectar_nodos("D", "E", 2)
+
+# Ejecutamos Dijkstra desde A hasta E.
+print("Ruta más corta de A hasta E:")
+grafo.dijkstra("A", "E")
